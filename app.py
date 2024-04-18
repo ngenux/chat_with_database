@@ -16,7 +16,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 load_dotenv()
 def init_database() -> SQLDatabase:
     db_user = os.getenv("USER")
-    db_password = urllib.parse.quote_plus(os.getenv("PASSWORD"))
+    db_password = os.getenv("PASSWORD")
     db_host = os.getenv("HOST")
     db_name = os.getenv("DB_NAME")
     db_role = os.getenv("ROLE")
