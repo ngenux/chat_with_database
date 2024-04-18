@@ -2,7 +2,6 @@ langchain==0.1.13
 langchain-community==0.0.33
 langchain-core==0.1.43
 langchain-experimental==0.0.54
-langchain-google-alloydb-pg==0.1.0
 langchain-google-genai==0.0.6
 langchain-openai==0.0.5
 streamlit==1.31.0
