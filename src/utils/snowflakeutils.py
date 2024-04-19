@@ -17,26 +17,27 @@ def get_snowflake_engine(
 
 def get_database() -> SQLDatabase:
     load_dotenv()
-    db_user = os.getenv("USERNAME1")
-    db_password = urllib.parse.quote_plus(os.getenv("PASSWORD"))
-    db_host = os.getenv("HOSTNAME")
-    db_name = os.getenv("DATABASE")
-    db_role = os.getenv("ROLE")
-    db_warehouse = os.getenv("WAREHOUSE")
-    db_schema = os.getenv("SCHEMA")
+    db_user = os.getenv("username1")
+    db_password = urllib.parse.quote_plus(os.getenv("password"))
+    db_host = os.getenv("hostname")
+    db_name = os.getenv("database")
+    db_role = os.getenv("role")
+    db_warehouse = os.getenv("warehouse")
+    db_schema = os.getenv("schema")
 
     db_uri = f"snowflake://{db_user}:{db_password}@{db_host}/{db_name}/{db_schema}?warehouse={db_warehouse}&role={db_role}"
     return SQLDatabase.from_uri(db_uri)
 
 
 def write_logs(user, session_id, user_query, response, time):
+    load_dotenv()
     conn = sn.connect(
-        user=os.getenv("USERNAME1"),
-        password=os.getenv("PASSWORD"),
-        role=os.getenv("ROLE"),
-        schema=os.getenv("LOGS_SCHEMA"),
-        account=os.getenv("HOSTNAME"),
-        database=os.getenv("DATABASE"),
+        user=os.getenv("username1"),
+        password=os.getenv("password"),
+        role=os.getenv("role"),
+        schema=os.getenv("logs_schema"),
+        account=os.getenv("hostname"),
+        database=os.getenv("database"),
     )
     cursor = conn.cursor()
 
@@ -47,13 +48,14 @@ def write_logs(user, session_id, user_query, response, time):
 
 
 def authenticate_creds(username, password):
+    load_dotenv()
     conn = sn.connect(
-        user=os.getenv("USERNAME1"),
-        password=os.getenv("PASSWORD"),
-        role=os.getenv("ROLE"),
-        schema=os.getenv("LOGS_SCHEMA"),
+        user=os.getenv("username1"),
+        password=os.getenv("password"),
+        role=os.getenv("role"),
+        schema=os.getenv("logs_schema"),
         account=os.getenv("hostname"),
-        database=os.getenv("DATABASE"),
+        database=os.getenv("database"),
     )
     cursor = conn.cursor()
     query = f"""
@@ -69,13 +71,14 @@ def authenticate_creds(username, password):
 
 
 def get_user_id(username):
+    load_dotenv()    
     conn = sn.connect(
-        user=os.getenv("USERNAME1"),
-        password=os.getenv("PASSWORD"),
-        role=os.getenv("ROLE"),
-        schema=os.getenv("LOGS_SCHEMA"),
+        user=os.getenv("username1"),
+        password=os.getenv("password"),
+        role=os.getenv("role"),
+        schema=os.getenv("logs_schema"),
         account=os.getenv("hostname"),
-        database=os.getenv("DATABASE"),
+        database=os.getenv("database"),
     )
     cursor = conn.cursor()
     query = f"""
