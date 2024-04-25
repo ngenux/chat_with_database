@@ -1,5 +1,5 @@
 # This sets up the container with Python 3.10 installed.
-FROM python:3.11-slim
+FROM python:3.11
 
 # This copies everything in your current directory to the /app directory in the container.
 COPY . /app
@@ -11,7 +11,7 @@ WORKDIR /app
 RUN pip install -r requirements.txt
 
 # This tells Docker to listen on port 80 at runtime. Port 80 is the standard port for HTTP.
-EXPOSE 7081
+EXPOSE 5090
 
 # This command creates a .streamlit directory in the home directory of the container.
 RUN mkdir ~/.streamlit
@@ -23,4 +23,4 @@ RUN mkdir ~/.streamlit
 # RUN cp credentials.toml ~/.streamlit/credentials.toml
 
 # This sets the default command for the container to run the app with Streamlit.
-ENTRYPOINT ["streamlit", "run", "app.py", "--server.port=7081", "--server.address=0.0.0.0"]
+ENTRYPOINT ["streamlit", "run", "app.py", "--server.port=5090", "--server.address=0.0.0.0"]

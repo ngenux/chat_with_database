@@ -4,43 +4,9 @@ import uuid
 from datetime import datetime
 from src.utils.snowflakeutils import authenticate_creds
 
-
 def load_streamlit():
     if login_page():
         st.switch_page("pages/chatwindow.py")
-
-
-# Function to authenticate username and password
-def authenticate(username, password):
-    client = bigquery.Client()
-    query = f"""
-    SELECT COUNT(*)
-    FROM rag-exploration-417710.user.user_credentials
-    WHERE user_id = '{username}'
-      AND password = '{password}'
-    """
-
-    # Execute the query
-    query_job = client.query(query)
-
-    # Get the query result
-    result = query_job.result()
-
-    # Iterate through the result rows
-    for row in result:
-        count = row[0]  # Assuming the result is a single value representing count
-        if count > 0:
-            return True  # Authentication successful
-        else:
-            return False  # Authentication failed
-
-
-def authenticate_hardcoded(username, password):
-    if username == "test@ngenux.com" and password == "ngenuxrag":
-        return True
-    else:
-        return False
-
 
 # Login page
 def login_page():

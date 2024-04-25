@@ -29,7 +29,7 @@ def get_database() -> SQLDatabase:
     return SQLDatabase.from_uri(db_uri)
 
 
-def write_logs(user, session_id, user_query, response, time):
+def write_logs(user, session_id, user_query, response, time, run_id):
     load_dotenv()
     conn = sn.connect(
         user=os.getenv("username1"),
@@ -42,8 +42,8 @@ def write_logs(user, session_id, user_query, response, time):
     cursor = conn.cursor()
 
     cursor.execute(
-        "INSERT INTO logs (user_id, session_id, query, response, timestamp) VALUES (%s,%s,%s,%s,%s)",
-        (user, session_id, user_query, response, time),
+        "INSERT INTO logs (user_id, session_id, query, response, timestamp, run_id) VALUES (%s,%s,%s,%s,%s, %s)",
+        (user, session_id, user_query, response, time, run_id),
     )
 
 
@@ -71,7 +71,7 @@ def authenticate_creds(username, password):
 
 
 def get_user_id(username):
-    load_dotenv()    
+    load_dotenv()
     conn = sn.connect(
         user=os.getenv("username1"),
         password=os.getenv("password"),
@@ -87,3 +87,22 @@ def get_user_id(username):
     WHERE email_id = '{username}'
     """
     return cursor.execute(query).fetchall()[0][0]
+
+
+def update_logs(feedback, session_id, run_id):
+    load_dotenv()
+    conn = sn.connect(
+        user=os.getenv("username1"),
+        password=os.getenv("password"),
+        role=os.getenv("role"),
+        schema=os.getenv("logs_schema"),
+        account=os.getenv("hostname"),
+        database=os.getenv("database"),
+    )
+    cursor = conn.cursor()
+    query = f"""
+    UPDATE STREAMLIT_APPS.{os.getenv("logs_schema")}.LOGS
+    SET FEEDBACK = {feedback}
+    WHERE session_id = '{session_id}' AND run_id = {run_id};
+    """
+    cursor.execute(query)
