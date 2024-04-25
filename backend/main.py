@@ -81,6 +81,7 @@ def get_gemini_llm():
 
 def get_properties():
     properties_dict = {}
+    properties_dict["googleapi_key"] = "AIzaSyCWqyqXNgPvHdRRqq0Jrt-mziAC2WYq8Vg"    
     properties_dict["username"] = "NG_SRIKANTH"
     properties_dict["password"] = "Mercedes@123"
     properties_dict["hostname"] = "fe87374.central-india.azure"
