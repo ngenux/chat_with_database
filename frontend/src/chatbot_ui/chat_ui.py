@@ -41,7 +41,7 @@ def message_display(text, is_user=False):
 
 def reset_chat_history():
     st.session_state["generated"] = (
-        "Hey there, I'm SQL Bot, ready to chat up on any questions you might have regarding the data in your database."
+        "Hey there, I'm Badger Time tracker Bot, ready to chat up on any questions you might have regarding the data in the timesheets."
     )
     st.session_state["past"] = "Hi..."
     st.session_state["conversation"] = []

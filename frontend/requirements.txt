@@ -25,7 +25,6 @@ google-api-python-client==2.126.0
 google-auth==2.29.0
 google-auth-httplib2==0.2.0
 google-cloud==0.34.0
-google-cloud-bigquery==3.20.1
 google-cloud-core==2.4.1
 google-crc32c==1.5.0
 google-generativeai==0.5.1
@@ -95,6 +94,7 @@ snowflake-sqlalchemy==1.5.3
 sortedcontainers==2.4.0
 SQLAlchemy==1.4.52
 streamlit==1.33.0
+streamlit-extras
 tenacity==8.2.3
 tiktoken==0.6.0
 toml==0.10.2
