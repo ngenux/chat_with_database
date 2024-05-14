@@ -1,12 +1,14 @@
 import streamlit as st
 from src.chatbot_ui.chat_ui import message_display, reset_chat_history
 from src.utils.chatutils import get_response
-from src.utils.snowflakeutils import get_database, write_logs, get_user_id, update_logs
+from src.utils.snowflakeutils import get_database, write_logs, get_user_id, update_logs, get_db_connection
 from src.utils.llmutils import convert_to_langchainmsg
 from datetime import datetime
 from langchain.memory import ConversationBufferMemory
 import uuid
+import time
 
+code_start_time = time.time()
 memory = ConversationBufferMemory(
     return_messages=True, output_key="answer", input_key="input"
 )
@@ -169,12 +171,18 @@ if reset_button:
 if ((len(query) > 1) and (query != st.session_state.previous_query)) or submit_button:
 
     messages = st.session_state["messages"]
-    result = get_response(
+    response_start_time = time.time()
+    result, llm_sql_query = get_response(
         user_query=query,
         db=st.session_state.db,
         schema_info = st.session_state.schema_info,
         chat_history=convert_to_langchainmsg(st.session_state.chat_history),
     )
+    print(f' generated query is {llm_sql_query}')
+    print(f'generated result is {result}')
+    response_end_time = time.time()
+    response_execution_time = response_start_time - response_end_time
+    print(f'response_execution_time for writing logs is {response_execution_time}') 
     
     st.session_state.chat_history.append(query)    
     st.session_state.chat_history.append(result)
@@ -214,12 +222,26 @@ try:
 except Exception as e:    
     result = 'a'
     
-if ((len(query) > 1)) and ((len(result)> 1)) or submit_button:
+try:
+    print(f'llm_sql_query is {llm_sql_query}')
+except Exception as e:    
+    llm_sql_query = 'b'    
+        
+if ((len(query) > 1) and (len(result)> 1) and (len(llm_sql_query)> 1)) or submit_button:
+    # get database connection for writing the logs    
+    cursor = get_db_connection() 
     write_logs(
-        user=get_user_id(st.session_state.user),
+        user=get_user_id(st.session_state.user, cursor),
         user_query=query,
         response=result,
         time=datetime.now(),
         session_id=st.session_state.session_id,
         run_id=st.session_state.run_id,
+        cursor = cursor,
+        sql_query = llm_sql_query,
     )
+    
+code_end_time = time.time()
+code_execution_time = code_end_time - code_start_time
+print(f'code_execution_time for writing logs is {code_execution_time}')  
+    

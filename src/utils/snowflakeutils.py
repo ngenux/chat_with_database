@@ -29,7 +29,7 @@ def get_database() -> SQLDatabase:
     return SQLDatabase.from_uri(db_uri)
 
 
-def write_logs(user, session_id, user_query, response, time, run_id):
+def get_db_connection():
     load_dotenv()
     conn = sn.connect(
         user=os.getenv("username1"),
@@ -40,10 +40,12 @@ def write_logs(user, session_id, user_query, response, time, run_id):
         database=os.getenv("database"),
     )
     cursor = conn.cursor()
+    return cursor 
 
+def write_logs(user, session_id, user_query, response, time, run_id, cursor, sql_query):
     cursor.execute(
-        "INSERT INTO logs (user_id, session_id, query, response, timestamp, run_id) VALUES (%s,%s,%s,%s,%s, %s)",
-        (user, session_id, user_query, response, time, run_id),
+        "INSERT INTO logs (user_id, session_id, query, response, timestamp, run_id, sql_query) VALUES (%s,%s,%s,%s,%s, %s, %s)",
+        (user, session_id, user_query, response, time, run_id, sql_query),
     )
 
 
@@ -70,17 +72,7 @@ def authenticate_creds(username, password):
         return False
 
 
-def get_user_id(username):
-    load_dotenv()
-    conn = sn.connect(
-        user=os.getenv("username1"),
-        password=os.getenv("password"),
-        role=os.getenv("role"),
-        schema=os.getenv("logs_schema"),
-        account=os.getenv("hostname"),
-        database=os.getenv("database"),
-    )
-    cursor = conn.cursor()
+def get_user_id(username, cursor):
     query = f"""
     SELECT user_id
     FROM STREAMLIT_APPS.SQLBOT_LOGS.USERS

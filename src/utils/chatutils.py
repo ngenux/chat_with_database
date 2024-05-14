@@ -18,7 +18,7 @@ load_dotenv()
 def get_sql_chain(db, schema_info):
 
     template = """
-    You are a data analyst at a company. You are interacting with a user who is asking you questions about the company's database.
+    You are a snowflake expert.You are a data analyst at a company. You are interacting with a user who is asking you questions about the company's database.
     Based on the table schema below, write a SQL query that would answer the user's question. Take the conversation history into account.
     Pay attention to use only the column names you can see in the tables below. Be careful to not query for columns that do not exist. Also, pay attention to which column is in which table. Perform joins wherever necessary.
     <SCHEMA>{schema}</SCHEMA>
@@ -52,38 +52,47 @@ def get_sql_chain(db, schema_info):
 
 
 def get_response(user_query: str, db: SQLDatabase, schema_info: str,chat_history: list):
-    try:
-        sql_chain = get_sql_chain(db, schema_info)
+    sql_chain = get_sql_chain(db, schema_info)
 
-        template = """
-        You are a data analyst at a company. You are interacting with a user who is asking you questions about the company's database.
-        Based on the table schema below, question, sql query, and sql response, write a natural language response.
-        <SCHEMA>{schema}</SCHEMA>
+    template = """
+    You are a snowflake expert.You are a data analyst at a company. You are interacting with a user who is asking you questions about the company's database.
+    Based on the table schema below, question, sql query, and sql response, write a natural language response.
+    <SCHEMA>{schema}</SCHEMA>
 
-        Conversation History: {chat_history}
-        SQL Query: <SQL>{query}</SQL>
-        User question: {question}
-        SQL Response: {response}"""
+    Conversation History: {chat_history}
+    SQL Query: <SQL>{query}</SQL>
+    User question: {question}
+    SQL Response: {response}"""
 
-        prompt = ChatPromptTemplate.from_template(template)
+    prompt = ChatPromptTemplate.from_template(template)
 
-        llm = get_gemini_llm()
+    llm = get_gemini_llm()
 
-        chain = (
-            RunnablePassthrough.assign(query=sql_chain).assign(
-                schema=lambda x: schema_info,
-                response=lambda vars: db.run(vars["query"]),
-            )
-            | prompt
-            | llm
-            | StrOutputParser()
-        )
+    sql_query_generation_chain = (
+    RunnablePassthrough. \
+        assign(query=sql_chain). \
+        assign(schema=lambda _: db.get_table_info())
+    )
 
-        return chain.invoke(
-            {
-                "question": user_query,
-                "chat_history": chat_history,
-            }
-        )
+    sql_query_generation_response = sql_query_generation_chain.invoke(
+        {
+            "question": user_query,
+            "chat_history": chat_history,
+        }
+    )
+    sql_query = sql_query_generation_response['query']
+    try:    
+        nlp_output_generation_chain = (RunnablePassthrough.assign(response=lambda vars: db.run(vars["query"])).assign(output= prompt | llm | StrOutputParser()))
+        
+        nlp_response = nlp_output_generation_chain.invoke({
+            "question": user_query,
+            "chat_history": chat_history,
+            "schema": sql_query_generation_response["schema"],
+            "query" : sql_query_generation_response["query"]
+            })
+        
+        nlp_output = nlp_response['output']
+        return nlp_output, sql_query
     except Exception as e:
-        return f"Sorry, I am not able to find the response to your query in the database."
+        nlp_output = "Sorry, I am not able to find the response to your query in the database."
+        return nlp_output, sql_query
