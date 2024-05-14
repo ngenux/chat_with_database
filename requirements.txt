@@ -95,6 +95,7 @@ snowflake-sqlalchemy==1.5.3
 sortedcontainers==2.4.0
 SQLAlchemy==1.4.52
 streamlit==1.33.0
+streamlit-extras
 tenacity==8.2.3
 tiktoken==0.6.0
 toml==0.10.2
